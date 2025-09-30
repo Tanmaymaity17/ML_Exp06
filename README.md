@@ -335,6 +335,8 @@ print(r.status_code, r.json())
 
 # 10. Deployment Render & Streamlit — quick steps
 
+- Screenshots : `https://docs.google.com/document/d/1MIVPI7dOo9j3gt5q0B7pH6z_OxeMfv8e638vIz-R0po/edit?usp=sharing`
+
 **10.1 Deploy Flask API :**
 
 1. Commit your code (including `main.py`, `requirements.txt`, and `wine_quality_rf.pkl`). Push to GitHub.
