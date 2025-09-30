@@ -5,6 +5,7 @@ A step‑by‑step, easy-to-follow cookbook to reproduce the full project: train
 **Repo & deployed API (for reference)**
 
 - GitHub repo: `https://github.com/Tanmaymaity17/ML_Exp06`
+- Deployed Frontend: `https://random-forest-tanmay.streamlit.app/`
 - Deployed API: `https://random-forest-deployed.onrender.com/`
 - Dataset: `https://www.kaggle.com/datasets/yasserh/wine-quality-dataset`
 
@@ -216,9 +217,66 @@ if __name__ == "__main__":
 
 ---
 
-# 7. Local testing
+# 7. Add Streamlit Frontend
 
-### 1) Python `requests`:
+Create a new folder `/frontend` in your repo:
+```python
+ML_Exp06/
+├── frontend/
+│   ├── app.py
+│   └── requirements.txt
+```
+`frontend/app.py` :
+```python
+import streamlit as st
+import requests
+
+st.set_page_config(page_title="Wine Quality Predictor", layout="centered")
+st.title("🍷 Wine Quality Predictor")
+
+API_URL = "https://random-forest-deployed.onrender.com/predict"  # Deployed Flask API
+
+st.write("Enter the wine features below using sliders:")
+
+features = {
+    "Id": st.slider("ID", min_value=1, max_value=1000, value=1, step=1),
+    "fixed acidity": st.slider("Fixed Acidity", 0.0, 20.0, 7.4, 0.1),
+    "volatile acidity": st.slider("Volatile Acidity", 0.0, 5.0, 0.7, 0.01),
+    "citric acid": st.slider("Citric Acid", 0.0, 5.0, 0.0, 0.01),
+    "residual sugar": st.slider("Residual Sugar", 0.0, 20.0, 1.9, 0.1),
+    "chlorides": st.slider("Chlorides", 0.0, 1.0, 0.076, 0.001),
+    "free sulfur dioxide": st.slider("Free Sulfur Dioxide", 0, 100, 11, 1),
+    "total sulfur dioxide": st.slider("Total Sulfur Dioxide", 0, 300, 34, 1),
+    "density": st.slider("Density", 0.9, 1.1, 0.9978, 0.0001),
+    "pH": st.slider("pH", 0.0, 14.0, 3.51, 0.01),
+    "sulphates": st.slider("Sulphates", 0.0, 5.0, 0.56, 0.01),
+    "alcohol": st.slider("Alcohol", 0.0, 20.0, 9.4, 0.1)
+}
+
+if st.button("Predict Quality"):
+    try:
+        response = requests.post(API_URL, json={"features": features})
+        result = response.json()
+        if "prediction" in result:
+            st.success(f"Predicted Wine Quality: {result['prediction']}")
+        else:
+            st.error(f"API Error: {result.get('error', 'Unknown error')}")
+    except Exception as e:
+        st.error(f"Request failed: {e}")
+
+```
+
+---
+
+# 8. Testing
+
+### 1) Streamlit Frontend :
+ - Adjust the wine features using sliders.
+
+- Click Predict Quality to see results fetched from the deployed Flask API.
+- Deployed frontend : `https://random-forest-tanmay.streamlit.app/`
+
+### 2) Python `requests`:
 
 **Note:** Run the script below on any device with internet access and Python installed. Change the feature values as required — the prediction computation runs on the deployed backend at Render, so you don't need the model or training dependencies locally.
 
@@ -249,7 +307,7 @@ print(r.status_code, r.json())
 ```
 
 
-### 2) Postman:
+### 3) Postman:
 
 - Create a POST request to `https://random-forest-deployed.onrender.com/predict`
 - Select Body → raw → JSON and paste the JSON from above
@@ -257,7 +315,7 @@ print(r.status_code, r.json())
 
 ---
 
-# 8. Common errors & troubleshooting
+# 9. Common errors & troubleshooting
 
 **Error:** `Missing feature: fixed acidity` or similar
 
@@ -275,7 +333,9 @@ print(r.status_code, r.json())
 
 ---
 
-# 9. Deployment (Render) — quick steps
+# 10. Deployment Render & Streamlit — quick steps
+
+**10.1 Deploy Flask API :**
 
 1. Commit your code (including `main.py`, `requirements.txt`, and `wine_quality_rf.pkl`). Push to GitHub.
 2. Create a Render account and connect your GitHub repo.
@@ -283,6 +343,14 @@ print(r.status_code, r.json())
 4. Set **Build Command**: `pip install -r requirements.txt`
 5. Set **Start Command**: `gunicorn main:app --bind 0.0.0.0:$PORT`.
 6. Deploy. When done, your app will be available at a Render URL (use your deployed URL).
+
+**10.2 Deploy Streamlit frontend :**
+
+1. Commit /frontend folder to GitHub
+2. Go to Streamlit Cloud → New app
+3. Connect GitHub repo → select frontend folder
+4. Main file: app.py
+5. Deploy → get Streamlit frontend URL
 
 **Tips:**
 
@@ -293,5 +361,6 @@ print(r.status_code, r.json())
 # Conclusion
 
 This project covered the full lifecycle: dataset preparation (Wine Quality), model training and light hyperparameter tuning, saving the trained Random Forest model, wrapping it in a Flask REST API, deploying to Render, and testing using Python/Postman. Through targeted tuning we improved baseline accuracy from **68%** to **70.74%** using `criterion='entropy'` and `max_features='log2'`. The deployed API enables predictions without local model files.
+Users can now adjust wine features interactively via sliders and instantly get predictions from the deployed backend, making the system fully accessible and user-friendly.
 
 ---
